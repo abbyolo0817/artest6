@@ -30,7 +30,7 @@
         }
         .stamp-slot.stamped {
             background-color: transparent; /* 讓 SVG 圖示自己顯示背景 */
-            border-color: #D9534F; /* 邊框改成紅色系 */
+            border-color: #BF6A6A; /* 邊框改成印章的暗紅色 */
             transform: scale(1.1);
         }
         .stamp-icon {
@@ -51,7 +51,7 @@
             transform: translateY(2px);
         }
         .title-gradient {
-            background: linear-gradient(45deg, #F8B44E, #D9534F);
+            background: linear-gradient(45deg, #F8B44E, #d9534f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -67,18 +67,22 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+
     <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-8 text-center">
         <!-- 標題 -->
         <h1 class="text-3xl sm:text-4xl font-bold title-gradient mb-2">【大家來找碴】</h1>
         <p class="text-gray-500 mb-6">專注細節，找出所有不同之處！</p>
+        
         <!-- 使用者名稱 -->
         <div class="mb-6">
             <input type="text" id="userName" placeholder="請輸入挑戰者大名" class="w-full px-4 py-2 text-center text-gray-700 bg-gray-100 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition">
         </div>
+
         <!-- 集點卡 -->
         <div id="stampCard" class="stamp-card mb-8">
             <!-- JS 會自動生成 10 個格子 -->
         </div>
+
         <!-- 按鈕區 -->
         <div class="space-y-4">
             <button id="addStampBtn" class="main-button w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
@@ -88,24 +92,38 @@
                 重置
             </button>
         </div>
+
     </div>
+
     <script>
         const stampCard = document.getElementById('stampCard');
         const addStampBtn = document.getElementById('addStampBtn');
         const resetBtn = document.getElementById('resetBtn');
         const userNameInput = document.getElementById('userName');
+        
         const TOTAL_STAMPS = 10;
         let currentStamps = 0;
         let userName = '';
-        // 代表「抓」的圓形印章 SVG 圖示
+
+        // 代表骷髏頭的圓形印章 SVG 圖示
         const foundIconSVG = `
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <g>
-                    <circle cx="50" cy="50" r="48" fill="#D9534F" stroke-width="0"/>
-                    <text x="50" y="58" font-family="'Noto Sans TC', sans-serif" font-size="55" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="white">抓</text>
+                <g transform="rotate(-8 50 50)">
+                    <circle cx="50" cy="50" r="45" stroke="#BF6A6A" stroke-width="8" fill="none"/>
+                    <g fill="#BF6A6A">
+                        <!-- Eyes - two irregular blobs -->
+                        <path d="M 32 33 C 30 40, 38 48, 44 44 C 42 35, 35 30, 32 33 Z" />
+                        <path d="M 56 44 C 62 48, 70 40, 68 33 C 65 30, 58 35, 56 44 Z" />
+                        <!-- Nose - two small vertical rectangles -->
+                        <rect x="47" y="49" width="2.5" height="5" rx="1" />
+                        <rect x="51" y="49" width="2.5" height="5" rx="1" />
+                        <!-- Mouth - bone shape -->
+                        <path d="M 38 62 C 32 62, 32 70, 38 70 L 42 70 L 42 66 L 58 66 L 58 70 L 62 70 C 68 70, 68 62, 62 62 Z" />
+                    </g>
                 </g>
             </svg>
         `;
+        
         // 初始化集點卡
         function initializeCard() {
             stampCard.innerHTML = '';
@@ -116,6 +134,7 @@
                 stampCard.appendChild(slot);
             }
         }
+
         // 更新畫面
         function updateUI() {
             const slots = stampCard.querySelectorAll('.stamp-slot');
@@ -128,30 +147,37 @@
             });
             userNameInput.value = userName;
         }
+
         // 儲存進度
         function saveData() {
             localStorage.setItem('findGamePoints', currentStamps);
             localStorage.setItem('findGameUserName', userName);
         }
+
         // 讀取進度
         function loadData() {
             currentStamps = parseInt(localStorage.getItem('findGamePoints')) || 0;
             userName = localStorage.getItem('findGameUserName') || '';
         }
+
         // 骷顱頭獎勵動畫
         function showSkullReward() {
             const overlay = document.createElement('div');
             overlay.className = 'fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50 transition-opacity duration-500 opacity-0';
+            
             const skullEmoji = document.createElement('div');
-            skullEmoji.textContent = ':骷髏頭:';
+            skullEmoji.textContent = '💀';
             skullEmoji.className = 'text-8xl sm:text-9xl transition-transform duration-500 scale-0';
+            
             overlay.appendChild(skullEmoji);
             document.body.appendChild(overlay);
+
             setTimeout(() => {
                 overlay.classList.remove('opacity-0');
                 skullEmoji.classList.remove('scale-0');
                 skullEmoji.style.transform = 'scale(2)'; // 放大效果
             }, 10);
+            
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             if(audioContext.state === 'suspended') audioContext.resume();
             const oscillator = audioContext.createOscillator();
@@ -165,6 +191,7 @@
             gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 2);
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 2);
+
             setTimeout(() => {
                 overlay.classList.add('opacity-0');
                 skullEmoji.classList.add('scale-0');
@@ -173,6 +200,7 @@
                 }, 500);
             }, 2500);
         }
+
         // 自定義 Alert
         function showCustomAlert(message, callback) {
             const overlay = document.createElement('div');
@@ -185,7 +213,9 @@
             `;
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
+
             setTimeout(() => modal.classList.add('visible'), 10);
+
             const close = () => {
                 modal.classList.remove('visible');
                 setTimeout(() => {
@@ -195,6 +225,7 @@
             };
             modal.querySelector('.ok-btn').addEventListener('click', close);
         }
+
         // 自定義 Confirm
         function showCustomConfirm(message, callback) {
             const overlay = document.createElement('div');
@@ -210,7 +241,9 @@
             `;
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
+            
             setTimeout(() => modal.classList.add('visible'), 10);
+            
             const close = (result) => {
                 modal.classList.remove('visible');
                 setTimeout(() => {
@@ -221,16 +254,19 @@
             modal.querySelector('.confirm-btn').addEventListener('click', () => close(true));
             modal.querySelector('.cancel-btn').addEventListener('click', () => close(false));
         }
+
         // 事件監聽
         addStampBtn.addEventListener('click', () => {
             if (currentStamps < TOTAL_STAMPS) {
                 currentStamps++;
                 updateUI();
                 saveData();
+
                 if (currentStamps === TOTAL_STAMPS) {
                     setTimeout(() => {
                         showSkullReward();
-                        showCustomAlert(`恭喜，${userName || '挑戰者'}！<br>您已成功集滿十點！:骷髏頭:`);
+                        showCustomAlert(`恭喜，${userName || '挑戰者'}！<br>您已成功集滿十點！💀`);
+                        
                         setTimeout(() => {
                             currentStamps = 0;
                             updateUI();
@@ -240,6 +276,7 @@
                 }
             }
         });
+
         resetBtn.addEventListener('click', () => {
             showCustomConfirm('確定要清除所有紀錄，重新開始嗎？', (result) => {
                 if (result) {
@@ -249,10 +286,12 @@
                 }
             });
         });
+
         userNameInput.addEventListener('input', (e) => {
             userName = e.target.value;
             saveData();
         });
+        
         // 初始載入
         window.addEventListener('load', () => {
             initializeCard();
